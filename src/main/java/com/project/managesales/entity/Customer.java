@@ -5,6 +5,7 @@ import com.project.managesales.enums.Status;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,7 @@ public class Customer {
     @Email(message = "Invalid email address")
     private String email;
 
+    @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;

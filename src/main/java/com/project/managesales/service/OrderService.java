@@ -9,6 +9,6 @@ import java.util.List;
 public interface OrderService {
 
     Order createOrder(Order order);
-    List<Order> getOrders(BigDecimal amount, String customerCode);
+    List<Order> getOrders(BigDecimal minAmount, BigDecimal maxAmount, String customerCode);
     Order getOrderById(Long id);
 }

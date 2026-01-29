@@ -2,10 +2,12 @@ package com.project.managesales.service;
 
 import com.project.managesales.entity.Customer;
 import com.project.managesales.exception.ResourceNotFoundException;
+import com.project.managesales.exception.BadRequestException;
 import com.project.managesales.repository.CustomerRepository;
 import com.project.managesales.specification.CustomerSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,26 +42,27 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
+    @Transactional
     public Customer updateCustomer(Long id, Customer customer) {
         Customer existing = getCustomerById(id);
-        if(existing == null){
-            throw new ResourceNotFoundException("Customer not found with id " + id);
-        } else{
-            existing.setName(customer.getName()!=null?customer.getName():existing.getName());
-            existing.setEmail(customer.getEmail()!=null?customer.getEmail():existing.getEmail());
-            existing.setCustomerCode(customer.getCustomerCode()!=null?customer.getCustomerCode():existing.getCustomerCode());
-            existing.setStatus(customer.getStatus()!=null?customer.getStatus():existing.getStatus());
+
+        if (customer.getStatus() == null && existing.getStatus() == null) {
+            throw new BadRequestException("Status cannot be null");
         }
+
+        if(customer.getName()!=null) existing.setName(customer.getName());
+        if(customer.getEmail()!=null) existing.setEmail(customer.getEmail());
+        if(customer.getCustomerCode()!=null) existing.setCustomerCode(customer.getCustomerCode());
+        if(customer.getStatus()!=null) existing.setStatus(customer.getStatus());
+
         return existing;
     }
 
     @Override
-    public boolean deleteCustomer(Long id) {
+    @Transactional
+    public void deleteCustomer(Long id) {
         Customer customer = getCustomerById(id);
-        if(customer != null){
-            repository.delete(customer);
-            return true;
-        }
-        return false;
+        repository.delete(customer);
     }
+
 }

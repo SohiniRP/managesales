@@ -26,11 +26,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getOrders(BigDecimal amount, String customerCode) {
+    public List<Order> getOrders(BigDecimal minAmount, BigDecimal maxAmount, String customerCode) {
 
         Specification<Order> specification = Specification
-                .where(OrderSpecification.amountGreaterThanOrEqual(amount))
-                .and(OrderSpecification.amountLessThanOrEqual(amount))
+                .where(OrderSpecification.amountGreaterThanOrEqual(minAmount))
+                .and(OrderSpecification.amountLessThanOrEqual(maxAmount))
                 .and(OrderSpecification.hasCustomerCode(customerCode));
 
         return repository.findAll(specification);

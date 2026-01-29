@@ -2,6 +2,7 @@ package com.project.managesales.controller;
 
 import com.project.managesales.entity.Order;
 import com.project.managesales.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,20 +21,21 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+    public ResponseEntity<Order> createOrder(@Valid @RequestBody Order order) {
         return ResponseEntity.ok(orderService.createOrder(order));
     }
 
     @GetMapping
     public ResponseEntity<List<Order>> getOrder(
-            @RequestParam(required = false) BigDecimal amount,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(required = false) BigDecimal maxAmount,
             @RequestParam(required = false) String customerCode
             ) {
-        return new ResponseEntity<>(orderService.getOrders(amount, customerCode), HttpStatus.OK);
+        return new ResponseEntity<>(orderService.getOrders(minAmount, maxAmount, customerCode), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@RequestParam Long id) {
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         return new ResponseEntity<>(orderService.getOrderById(id), HttpStatus.OK);
     }
 }
