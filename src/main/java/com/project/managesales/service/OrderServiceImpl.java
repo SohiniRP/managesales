@@ -5,6 +5,8 @@ import com.project.managesales.entity.Order;
 import com.project.managesales.exception.ResourceNotFoundException;
 import com.project.managesales.repository.OrderRepository;
 import com.project.managesales.specification.OrderSpecification;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +23,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @CachePut(value="orders", key="#result.id")
     public Order createOrder(Order order) {
         return repository.save(order);
     }
 
     @Override
+    @Cacheable(value="orders", key = "#status!=null?#status:'all'")
     public List<Order> getOrders(BigDecimal minAmount, BigDecimal maxAmount, String customerCode) {
 
         Specification<Order> specification = Specification
@@ -37,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(value="orders", key ="#id")
     public Order getOrderById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order Not Found! - "+ id));

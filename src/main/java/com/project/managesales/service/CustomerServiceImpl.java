@@ -5,6 +5,9 @@ import com.project.managesales.exception.ResourceNotFoundException;
 import com.project.managesales.exception.BadRequestException;
 import com.project.managesales.repository.CustomerRepository;
 import com.project.managesales.specification.CustomerSpecification;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +24,13 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
+    @CachePut(value="customer", key="#result.id")
     public Customer createCustomer(Customer customer) {
         return repository.save(customer);
     }
 
     @Override
+    @Cacheable(value="customers", key="#status!=null?#status:'all'")
     public List<Customer> getCustomer(String status, String name) {
 
         Specification<Customer> spec = Specification
@@ -36,6 +41,7 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
+    @Cacheable(value="customers", key="#id")
     public Customer getCustomerById(Long id) {
         return repository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Customer not found with id " + id));
@@ -43,6 +49,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     @Transactional
+    @CachePut(value = "customers", key ="#customers.id")
     public Customer updateCustomer(Long id, Customer customer) {
         Customer existing = getCustomerById(id);
 
@@ -60,6 +67,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     @Transactional
+    @CacheEvict(value="customers", key ="#id")
     public void deleteCustomer(Long id) {
         Customer customer = getCustomerById(id);
         repository.delete(customer);
